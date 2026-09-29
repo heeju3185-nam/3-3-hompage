@@ -167,9 +167,10 @@ export function subscribeLiveFirestoreCollections(callbacks: {
   onSchedules: (items: AcademicSchedule[]) => void;
   onCounseling: (items: CounselingRequest[]) => void;
 }): () => void {
-  if (!isLiveFirebaseConfig || !auth.currentUser) {
+  if (!isLiveFirebaseConfig || !auth?.currentUser) {
     return () => {};
   }
+  const currentUid = auth.currentUser.uid;
 
   const unsubs: Array<() => void> = [];
 
@@ -266,7 +267,7 @@ export function subscribeLiveFirestoreCollections(callbacks: {
   const counselingPath = 'counselingRequests';
   const counselingQuery = query(
     collection(db, counselingPath),
-    where('authorId', '==', auth.currentUser.uid)
+    where('authorId', '==', currentUid)
   );
   unsubs.push(
     onSnapshot(
@@ -292,7 +293,8 @@ export function subscribeLiveFirestoreCollections(callbacks: {
 
 export async function persistAnnouncements(items: Announcement[], newOrUpdated?: Announcement, isDeleteId?: string): Promise<void> {
   saveLocalData(STORAGE_KEYS.announcements, items);
-  if (!isLiveFirebaseConfig || !auth.currentUser) return;
+  if (!isLiveFirebaseConfig || !auth?.currentUser) return;
+  const currentUid = auth.currentUser.uid;
 
   const path = 'announcements';
   try {
@@ -305,7 +307,7 @@ export async function persistAnnouncements(items: Announcement[], newOrUpdated?:
         category: newOrUpdated.category,
         content: newOrUpdated.content.slice(0, BLUEPRINT_CONSTRAINTS.announcement.contentMax),
         isPinned: newOrUpdated.isPinned,
-        authorId: auth.currentUser.uid,
+        authorId: currentUid,
         authorName: newOrUpdated.authorName.slice(0, BLUEPRINT_CONSTRAINTS.announcement.authorNameMax),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -330,7 +332,8 @@ export async function persistPosts(
   }
 ): Promise<void> {
   saveLocalData(STORAGE_KEYS.posts, items);
-  if (!isLiveFirebaseConfig || !auth.currentUser || !action) return;
+  if (!isLiveFirebaseConfig || !auth?.currentUser || !action) return;
+  const currentUid = auth.currentUser.uid;
 
   const path = 'posts';
   try {
@@ -342,7 +345,7 @@ export async function persistPosts(
         topic: action.post.topic,
         title: action.post.title.slice(0, BLUEPRINT_CONSTRAINTS.post.titleMax),
         body: action.post.body.slice(0, BLUEPRINT_CONSTRAINTS.post.bodyMax),
-        authorId: auth.currentUser.uid,
+        authorId: currentUid,
         authorName: action.post.authorName.slice(0, 40),
         status: 'open',
         createdAt: serverTimestamp(),
@@ -369,7 +372,7 @@ export async function persistPosts(
       await setDoc(doc(db, commentPath, commentId), {
         postId,
         content: action.comment.content.slice(0, BLUEPRINT_CONSTRAINTS.post.commentMax),
-        authorId: auth.currentUser.uid,
+        authorId: currentUid,
         authorName: action.comment.authorName.slice(0, 40),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -382,7 +385,8 @@ export async function persistPosts(
 
 export async function persistLunchMenus(items: LunchMenu[], updatedMenu?: LunchMenu): Promise<void> {
   saveLocalData(STORAGE_KEYS.lunchMenus, items);
-  if (!isLiveFirebaseConfig || !auth.currentUser || !updatedMenu) return;
+  if (!isLiveFirebaseConfig || !auth?.currentUser || !updatedMenu) return;
+  const currentUid = auth.currentUser.uid;
 
   const path = 'lunchMenus';
   try {
@@ -398,7 +402,7 @@ export async function persistLunchMenus(items: LunchMenu[], updatedMenu?: LunchM
       dessert: updatedMenu.dessert.slice(0, 60),
       calories: Math.min(5000, Math.max(0, Number(updatedMenu.calories) || 800)),
       allergyInfo: updatedMenu.allergyInfo.slice(0, 120),
-      authorId: auth.currentUser.uid,
+      authorId: currentUid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -413,7 +417,8 @@ export async function persistSchedules(
   deleteId?: string
 ): Promise<void> {
   saveLocalData(STORAGE_KEYS.schedules, items);
-  if (!isLiveFirebaseConfig || !auth.currentUser) return;
+  if (!isLiveFirebaseConfig || !auth?.currentUser) return;
+  const currentUid = auth.currentUser.uid;
 
   const path = 'schedules';
   try {
@@ -427,7 +432,7 @@ export async function persistSchedules(
         eventType: newSchedule.eventType,
         description: newSchedule.description.slice(0, BLUEPRINT_CONSTRAINTS.schedule.descriptionMax),
         targetGrade: newSchedule.targetGrade,
-        authorId: auth.currentUser.uid,
+        authorId: currentUid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
@@ -449,7 +454,8 @@ export async function persistCounselingRequests(
   }
 ): Promise<void> {
   saveLocalData(STORAGE_KEYS.counseling, items);
-  if (!isLiveFirebaseConfig || !auth.currentUser || !action) return;
+  if (!isLiveFirebaseConfig || !auth?.currentUser || !action) return;
+  const currentUid = auth.currentUser.uid;
 
   const path = 'counselingRequests';
   try {
@@ -459,7 +465,7 @@ export async function persistCounselingRequests(
         topic: action.request.topic,
         preferredDate: action.request.preferredDate,
         message: action.request.message.slice(0, BLUEPRINT_CONSTRAINTS.counseling.messageMax),
-        authorId: auth.currentUser.uid,
+        authorId: currentUid,
         authorName: action.request.authorName.slice(0, 40),
         status: 'pending',
         createdAt: serverTimestamp(),

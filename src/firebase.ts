@@ -1,16 +1,29 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { doc, getDocFromServer, getFirestore } from 'firebase/firestore';
+import { FirebaseApp, initializeApp } from 'firebase/app';
+import { Auth, getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { doc, Firestore, getDocFromServer, getFirestore } from 'firebase/firestore';
 import firebaseConfig from './firebase-applet-config.json';
-
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
 
 export const isLiveFirebaseConfig =
   Boolean(firebaseConfig.apiKey) &&
   !firebaseConfig.apiKey.includes('DemoClassroomKey');
+
+let appInstance: FirebaseApp | null = null;
+let dbInstance: Firestore | null = null;
+let authInstance: Auth | null = null;
+
+if (isLiveFirebaseConfig) {
+  try {
+    appInstance = initializeApp(firebaseConfig);
+    dbInstance = getFirestore(appInstance, firebaseConfig.firestoreDatabaseId);
+    authInstance = getAuth(appInstance);
+  } catch (err) {
+    console.warn('Firebase initialization skipped or failed, running in local classroom mode:', err);
+  }
+}
+
+export const db = dbInstance as Firestore;
+export const auth = authInstance as Auth | null;
+export const googleProvider = new GoogleAuthProvider();
 
 export enum OperationType {
   CREATE = 'create',
@@ -43,16 +56,17 @@ export function handleFirestoreError(
   operationType: OperationType,
   path: string | null
 ): never {
+  const currentUser = auth?.currentUser;
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
+      userId: currentUser?.uid,
+      email: currentUser?.email,
+      emailVerified: currentUser?.emailVerified,
+      isAnonymous: currentUser?.isAnonymous,
+      tenantId: currentUser?.tenantId,
       providerInfo:
-        auth.currentUser?.providerData?.map((provider) => ({
+        currentUser?.providerData?.map((provider) => ({
           providerId: provider.providerId,
           email: provider.email,
         })) || [],
@@ -65,11 +79,11 @@ export function handleFirestoreError(
 }
 
 export async function testConnection(): Promise<void> {
-  if (!isLiveFirebaseConfig) {
+  if (!isLiveFirebaseConfig || !dbInstance) {
     return;
   }
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
+    await getDocFromServer(doc(dbInstance, 'test', 'connection'));
   } catch (error) {
     if (
       error instanceof Error &&

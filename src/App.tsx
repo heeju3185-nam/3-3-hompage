@@ -230,9 +230,10 @@ export default function App() {
 
   const [feedbackBanner, setFeedbackBanner] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isDeployGuideOpen, setIsDeployGuideOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLiveFirebaseConfig) return;
+    if (!isLiveFirebaseConfig || !auth) return;
     const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         const isTeacherEmail = firebaseUser.email === 'heeju3185@gmail.com';
@@ -288,7 +289,7 @@ export default function App() {
   };
 
   const handleGoogleAuth = async () => {
-    if (!isLiveFirebaseConfig) {
+    if (!isLiveFirebaseConfig || !auth) {
       handleToggleRole();
       return;
     }
@@ -2669,6 +2670,67 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL 6: GitHub Pages Deployment Guide */}
+      {isDeployGuideOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-xl max-w-xl w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900">
+                GitHub Pages 배포 시 빈 화면 해결 및 자동 배포 안내
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsDeployGuideOpen(false)}
+                className="text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-700 leading-relaxed">
+              <p className="font-semibold text-slate-900">
+                왜 GitHub에서 아무것도 안 뜨는(빈 하얀 화면) 현상이 발생했나요?
+              </p>
+              <ol className="list-decimal pl-4 space-y-2">
+                <li>
+                  <span className="font-semibold text-slate-900">브랜치 직접 배포(Deploy from a branch) 선택 문제:</span>{' '}
+                  이 홈페이지는 React + TypeScript(<code className="font-mono bg-slate-100 px-1 py-0.5 rounded">.tsx</code>) 프로젝트입니다. 빌드 과정 없이 원본 소스 코드를 그대로 올리면 웹 브라우저가 <code className="font-mono bg-slate-100 px-1 py-0.5 rounded">main.tsx</code>를 읽지 못해 빈 화면이 나옵니다.
+                </li>
+                <li>
+                  <span className="font-semibold text-slate-900">하위 경로(<code className="font-mono bg-slate-100 px-1 py-0.5 rounded">base: './'</code>) 및 초기 설정 보완 완료:</span>{' '}
+                  지금 코드에 상대 경로 설정(<code className="font-mono bg-slate-100 px-1 py-0.5 rounded">vite.config.ts</code>)과 자동 빌드 워크플로우(<code className="font-mono bg-slate-100 px-1 py-0.5 rounded">.github/workflows/deploy.yml</code>), 그리고 오프라인·데모 키 안전 가드를 모두 반영했습니다.
+                </li>
+              </ol>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-3.5 space-y-1.5">
+                <div className="font-bold text-[#1E3A8A]">
+                  GitHub 저장소에서 딱 1가지만 변경해 주세요!
+                </div>
+                <p>
+                  1. 수정된 최신 코드를 GitHub 저장소(<code className="font-mono">main</code> 브랜치)에 다시 푸시(업로드)합니다.
+                </p>
+                <p>
+                  2. GitHub 저장소 상단 메뉴의 <strong>Settings</strong> → 왼쪽 메뉴 <strong>Pages</strong>로 이동합니다.
+                </p>
+                <p>
+                  3. <strong>Build and deployment</strong> 아래의 <strong>Source</strong>를 기존 <code className="font-mono">Deploy from a branch</code>에서 <strong>GitHub Actions</strong>로 변경하면 1~2분 뒤 자동으로 빌드되어 정상 화면이 나타납니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setIsDeployGuideOpen(false)}
+                className="px-4 py-2 text-xs font-semibold text-white bg-[#1E3A8A] rounded-lg"
+              >
+                확인 완료
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Quiet Editorial Footer */}
       <footer className="bg-white border-t border-slate-200 px-6 py-6 mt-12">
         <div className="max-w-[1320px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
@@ -2698,6 +2760,14 @@ export default function App() {
               className="hover:text-slate-900"
             >
               1:1 상담실
+            </button>
+            <span aria-hidden="true">·</span>
+            <button
+              type="button"
+              onClick={() => setIsDeployGuideOpen(true)}
+              className="text-[#1E3A8A] font-semibold hover:underline"
+            >
+              GitHub 배포 안내
             </button>
           </div>
         </div>
