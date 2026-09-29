@@ -1,0 +1,462 @@
+{
+  "entities": {
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Homeroom teacher and administrator role assignment record.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the administrator or teacher.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "role": {
+          "type": "string",
+          "description": "Assigned administrative role.",
+          "enum": ["teacher", "admin"],
+          "minLength": 5,
+          "maxLength": 20
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the admin record was created.",
+          "maxLength": 64
+        }
+      },
+      "required": ["uid", "role", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Classroom announcements, home correspondence letters, and assignment notices posted by the homeroom teacher.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Headline of the classroom announcement.",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "description": "Classification of the announcement.",
+          "enum": ["notice", "letter", "assignment", "event"],
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "content": {
+          "type": "string",
+          "description": "Detailed body text of the announcement.",
+          "minLength": 2,
+          "maxLength": 2000
+        },
+        "isPinned": {
+          "type": "boolean",
+          "description": "Whether the notice is pinned to the top of the classroom board."
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "Optional target or submission date in YYYY-MM-DD format.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the teacher who authored the announcement.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Display name of the teacher.",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp.",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp.",
+          "maxLength": 64
+        }
+      },
+      "required": ["title", "category", "content", "isPinned", "authorId", "authorName", "createdAt", "updatedAt"]
+    },
+    "CommunityPost": {
+      "title": "CommunityPost",
+      "description": "Interactive classroom board post created by students or the teacher for Q&A, peer praise, suggestions, and discussion.",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "Discussion category of the post.",
+          "enum": ["question", "praise", "suggestion", "free"],
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the student or teacher post.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "body": {
+          "type": "string",
+          "description": "Main content of the post.",
+          "minLength": 2,
+          "maxLength": 1500
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the post creator.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Display name of the student or teacher.",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "studentNumber": {
+          "type": "string",
+          "description": "Optional classroom roster number of the student.",
+          "minLength": 1,
+          "maxLength": 10,
+          "pattern": "^[0-9]{1,5}$"
+        },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle status of the post.",
+          "enum": ["open", "answered", "archived"],
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "teacherReply": {
+          "type": "string",
+          "description": "Official response from the homeroom teacher.",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the post was created.",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the post was last updated.",
+          "maxLength": 64
+        }
+      },
+      "required": ["topic", "title", "body", "authorId", "authorName", "status", "createdAt", "updatedAt"]
+    },
+    "PostComment": {
+      "title": "PostComment",
+      "description": "Comment on a classroom community post.",
+      "type": "object",
+      "properties": {
+        "postId": {
+          "type": "string",
+          "description": "ID of the parent CommunityPost document.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "content": {
+          "type": "string",
+          "description": "Comment body text.",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the comment author.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Display name of the comment author.",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the comment was created.",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the comment was updated.",
+          "maxLength": 64
+        }
+      },
+      "required": ["postId", "content", "authorId", "authorName", "createdAt", "updatedAt"]
+    },
+    "LunchMenu": {
+      "title": "LunchMenu",
+      "description": "Daily school lunch menu with dishes, calories, and allergy indicators.",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Date of the lunch menu in YYYY-MM-DD format.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "dayLabel": {
+          "type": "string",
+          "description": "Korean day of week label (e.g., 월요일).",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "rice": {
+          "type": "string",
+          "description": "Rice or grain dish name.",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "soup": {
+          "type": "string",
+          "description": "Soup or stew dish name.",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "mainDish": {
+          "type": "string",
+          "description": "Primary entree dish.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "sideDish1": {
+          "type": "string",
+          "description": "First side dish.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "sideDish2": {
+          "type": "string",
+          "description": "Second side dish or kimchi.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "dessert": {
+          "type": "string",
+          "description": "Fruit, dairy, or dessert item.",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "calories": {
+          "type": "number",
+          "description": "Total energy in kcal."
+        },
+        "allergyInfo": {
+          "type": "string",
+          "description": "Allergy indicator numbers and summary.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the teacher who registered the menu.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp.",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp.",
+          "maxLength": 64
+        }
+      },
+      "required": ["date", "dayLabel", "rice", "soup", "mainDish", "sideDish1", "sideDish2", "dessert", "calories", "allergyInfo", "authorId", "createdAt", "updatedAt"]
+    },
+    "AcademicSchedule": {
+      "title": "AcademicSchedule",
+      "description": "School academic calendar and classroom schedule entry.",
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Start date in YYYY-MM-DD format.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "Optional end date in YYYY-MM-DD format.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Event or academic schedule title.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "eventType": {
+          "type": "string",
+          "description": "Type of school event.",
+          "enum": ["exam", "performance", "activity", "holiday", "school"],
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "description": {
+          "type": "string",
+          "description": "Details and preparation notes for students.",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "targetGrade": {
+          "type": "string",
+          "description": "Target audience scope.",
+          "enum": ["all", "grade2", "class2_3"],
+          "minLength": 3,
+          "maxLength": 20
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the teacher who created the event.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp.",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp.",
+          "maxLength": 64
+        }
+      },
+      "required": ["date", "title", "eventType", "description", "targetGrade", "authorId", "createdAt", "updatedAt"]
+    },
+    "CounselingRequest": {
+      "title": "CounselingRequest",
+      "description": "Private 1-on-1 student consultation request with the homeroom teacher.",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string",
+          "description": "Consultation topic category.",
+          "enum": ["study", "friendship", "career", "health", "other"],
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "preferredDate": {
+          "type": "string",
+          "description": "Preferred date for counseling in YYYY-MM-DD format.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "message": {
+          "type": "string",
+          "description": "Private message from the student to the teacher.",
+          "minLength": 2,
+          "maxLength": 1000
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the student requesting counseling.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Name of the student.",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "status": {
+          "type": "string",
+          "description": "Consultation processing status.",
+          "enum": ["pending", "scheduled", "completed"],
+          "minLength": 4,
+          "maxLength": 20
+        },
+        "teacherNote": {
+          "type": "string",
+          "description": "Teacher response note on the consultation request.",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp.",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp.",
+          "maxLength": 64
+        }
+      },
+      "required": ["topic", "preferredDate", "message", "authorId", "authorName", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": "AdminRecord",
+      "description": "Stores homeroom teacher and administrator UIDs."
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Stores classroom announcements and home correspondence."
+    },
+    "/posts/{postId}": {
+      "schema": "CommunityPost",
+      "description": "Stores classroom community board posts by students and teachers."
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": "PostComment",
+      "description": "Stores comments under a specific community post."
+    },
+    "/lunchMenus/{menuId}": {
+      "schema": "LunchMenu",
+      "description": "Stores daily and weekly school lunch menu records."
+    },
+    "/schedules/{scheduleId}": {
+      "schema": "AcademicSchedule",
+      "description": "Stores academic calendar events and assessment schedules."
+    },
+    "/counselingRequests/{requestId}": {
+      "schema": "CounselingRequest",
+      "description": "Stores confidential 1:1 student-teacher counseling requests."
+    }
+  }
+}
